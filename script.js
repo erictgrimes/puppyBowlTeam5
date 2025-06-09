@@ -7,7 +7,23 @@ const API_URL = `https://fsa-puppy-bowl.herokuapp.com/api/${COHORT}/players`;
 const state = {
   puppies: [],
   currentPuppy: {},
-  puppyId: {},
+};
+
+const $selectPuppyContainer = document.getElementById(
+  "selected-puppy-container"
+);
+
+//window.addEventListener("hashchange", selectPuppy);
+
+const selectPuppy = () => {
+  getEventFromHash();
+  renderPuppyDetails();
+};
+
+const getEventFromHash = () => {
+  const id = window.location.hash.slice(1);
+
+  state.currentPuppy = state.puppies.find((puppy) => puppy.id === +id);
 };
 
 //fetch all players from api
@@ -39,39 +55,65 @@ const renderPuppies = () => {
     puppyListCard.innerHTML = `
       <button><strong>${puppy.name}</strong></button>`;
 
-       puppiesContainer.appendChild(puppyListCard);
-
+    puppiesContainer.appendChild(puppyListCard);
   });
-
-  
- 
 };
 
 const getPuppyData = async (puppy) => {
   try {
-
     const response = await fetch(`${API_URL}/${puppy.id}`);
-    const json = await response.json();
+    const { data } = await response.json();
 
-    const data =  {
+    //resets current puppy data
+    state.currentPuppy = {};
+    const info = {
+      id: data.player.id,
+      name: data.player.name,
+      breed: data.player.breed,
+      age: data.player.age,
+      imageUrl: data.player.imageUrl,
+      description: data.player.description,
+    };
+    state.currentPuppy.push(info);
 
-    }
+    return info;
   } catch (error) {
     console.log(error);
   }
-}
+};
 
+const makePuppyCard = () => {
+  if (!state.curretPuppy) {
+    return;
+  }
 
+  // create each element for the cards
+  const { id, name, breed, age, imageUrl, description } = state.currentPuppy;
+  const nameh3 = document.createElement("h2");
+  const breedP = document.createElement("p");
+  const ageP = document.createElement("p");
+  const image = document.createElement("img");
+  const des = document.createElement("p");
+  const btn = document.createElement("button");
 
+  //add id to each element
+  nameh3.id = "name"
+  breedP.id = "breed"
+  ageP.id = "age"
+  image.id = "image"
+  des.id = "description"
+  btn.id = "deleteButton"
 
+  
 
-
-
+  
+};
 
 //initialize the app
 const init = async () => {
   await fetchAllPuppies();
-};
 
+  //selectPuppy();
+};
 
 init();
